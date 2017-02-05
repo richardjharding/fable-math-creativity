@@ -1,0 +1,13 @@
+{
+    "projFile": "./main.fsx",
+    "sourceMaps": true,
+    "babelPlugins": ["transform-runtime"],
+    "rollup": {
+        "dest": "dist/main.js",
+        // PIXI will be loaded directly from a script tag
+        "external": ["PIXI"],
+        "globals": {
+            "PIXI": "PIXI"
+        }
+    }
+}
