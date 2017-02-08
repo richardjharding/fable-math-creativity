@@ -26,8 +26,8 @@ let drawBg  (ctx:Browser.CanvasRenderingContext2D) canvas =
 let drawCircle (ctx:Browser.CanvasRenderingContext2D) canvas x y scale = 
     ctx.save()
     ctx.beginPath() 
-    ctx.scale(scale, scale)
-    ctx.arc (x , y, 15., 0., 2. * Math.PI, false)
+    //ctx.transform(scale,0.,0.,scale,0.,0.)
+    ctx.arc (x , y, 15. + scale, 0., 2. * Math.PI, false)
     ctx.fillStyle <- U3.Case1 "red"
     ctx.fill()
     ctx.stroke()
@@ -49,7 +49,7 @@ let vRadInc = 0.1
 
 
 let MyCircle =
-    {X= width/2.; Y= height/2.; Scale = 1. ; ScaleSpeed = 0.02 ; lrSpeed = lrSpeed();
+    {X= width/2.; Y= height/2.; Scale = 1. ; ScaleSpeed = 0.2 ; lrSpeed = lrSpeed();
         hRad = hRad(); vRad = vRad(); hRadInc = hRadInc; vRadInc = vRadInc; lr= 0.}
 
 
