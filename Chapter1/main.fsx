@@ -3,117 +3,71 @@
 
 open System
 open Fable.Core
-open Fable.Core.JsInterop
-open Fable.Import.PIXI
-open Fable.Import.Browser
+open Fable.Import
 
 
+let width = 800.
+let height = 400.0
 
-importAll "core-js"
+type Circle = 
+    {X:float; Y:float;  Scale:float; ScaleSpeed: float; lrSpeed:float;
+    hRad:float; vRad:float ; hRadInc:float; vRadInc:float; lr:float}
 
-let options = [
-  BackgroundColor (float 0x1099bb)
-  Resolution 1.
-]
+let canvas = Browser.document.getElementsByTagName_canvas().[0]
+let ctx = canvas.getContext_2d()
 
-let renderer =
-  Globals.autoDetectRenderer( 800., 600., options )
-  |> unbox<SystemRenderer>
+canvas.height <- height
+canvas.width <- width
 
-let gameDiv = document.getElementById("game")
-gameDiv.appendChild( renderer.view )
+let drawBg  (ctx:Browser.CanvasRenderingContext2D) canvas = 
+    ctx.fillStyle <-U3.Case1 "black"
+    ctx.fillRect(0.,0.,width,height)
 
-let rand = new Random()
+let drawCircle (ctx:Browser.CanvasRenderingContext2D) canvas x y scale = 
+    ctx.save()
+    ctx.beginPath() 
+    ctx.scale(scale, scale)
+    ctx.arc (x , y, 15., 0., 2. * Math.PI, false)
+    ctx.fillStyle <- U3.Case1 "red"
+    ctx.fill()
+    ctx.stroke()
+    ctx.restore()
 
-type Circle = {
-    graphic:Graphics
-    hRad:float
-    vRad:float
-    hRadInc:float
-    vRadInc: float
-    mutable lr: float
-    lrSpeed: float
-}
+let r = new Random()
+
+let lrSpeed () =     
+    float (5  + r.Next() * 40)
 
 let hRad () =
-    float (4 + rand.Next())
+    float (4 + r.Next())
 
 let vRad () =
-    float (4 + rand.Next())
+    float (4 + r.Next())
+
+let hRadInc = 0.1
+let vRadInc = 0.1
 
 
+let MyCircle =
+    {X= width/2.; Y= height/2.; Scale = 1. ; ScaleSpeed = 0.02 ; lrSpeed = lrSpeed();
+        hRad = hRad(); vRad = vRad(); hRadInc = hRadInc; vRadInc = vRadInc; lr= 0.}
 
-let drawCircle (circle:Graphics) (x:float) (y:float) =     
-    circle.lineStyle (4., float 0xffd900, 1.) |> ignore
-    circle.beginFill(float 0xFFFF0B, 0.5) |> ignore
-    circle.drawCircle(x,y,50.) |> ignore
+
+drawBg ctx canvas
+
+drawCircle ctx canvas MyCircle.X MyCircle.Y MyCircle.Scale
+
+let rec loop circle = async {
+    ctx.clearRect(0.,0.,width,height)
+    drawBg ctx canvas
+    drawCircle ctx canvas circle.X circle.Y circle.Scale
     
-    circle.endFill() |> ignore
-    circle
-    
-let startList = [1..10]
+    let circle  = {circle with Scale = circle.Scale + circle.ScaleSpeed}
+    do! Async.Sleep(int (1000/60))
+    return! loop circle
 
-let gList =
-    startList |> List.map (fun i ->
-                    let g = Graphics()
-                    let r = new Random()
-                    let x = float ( 400)
-                    console.log ("x: " + x.ToString())
-                    let y = float (300)
-                    let g = drawCircle g x y
-                    {graphic = g ; hRad = hRad(); vRad = vRad();hRadInc = 0.1; vRadInc = 0.1; lr = 0.; lrSpeed = 0.1}
-                    )
+}
 
-// create the root of the scene graph
-let stage = Container()
-
-gList |> List.iter (fun g -> (
-                                        //console.log (g.graphic.x.ToString())
-                                        stage.addChild(g.graphic) |> ignore
-                                        //console.log (g.graphic.x.ToString())
-                                    )
-                                )
+loop MyCircle |> Async.StartImmediate
 
 
-
-
-let rec animate (dt:float) =
-  window.requestAnimationFrame(FrameRequestCallback animate) |> ignore
-
-  gList |>List.iter (fun g ->  
-                        //console.log(g.position.x.ToString())
-                        g.lr <- g.lr + g.lrSpeed
-                        let b = g.graphic.getBounds()
-                        console.log ("bounds x : " + b.x.ToString())
-                        let x = (b.width/2. + g.hRad * Math.Sin(g.lr * Math.PI/180.0)) /1000000.
-                        //console.log(x.ToString())
-                        let y = b.width/2. + g.vRad * Math.Cos(g.lr * Math.PI/180.0) /1000000.
-                        //let y= b.y //5. - 6.0 * Math.Cos(0.3)
-                        //let x =  6.0 * Math.Sin(0.3)
-                        g.graphic.position.set(x,y) |> ignore
-                        ignore()
-                        //console.log (x)
-                        //g.position.set(x,y) |> ignore
-                        //console.log (b.x)
-                        //g.position.set(
-                        )
-
-
-  // just for fun, let's rotate mr rabbit a little
-//   bunny.rotation <- bunny.rotation + 0.2
-//  // let p = new Point(0.1, 0.1)
-//   scaleShape graphics
-//   graphics.alpha <- graphics.alpha * 0.97
-
-//   if(graphics.scale.x > 35.0) then
-//     graphics.scale.x <- 1.0
-//     graphics.scale.y <- 1.0
-//     graphics.alpha <- 1.0
-
-//   console.log("scaleX = " + bunny.scale.x.ToString())
-
-  // render the container
-  renderer.render(stage)
-
-// start animating
-animate 0.
