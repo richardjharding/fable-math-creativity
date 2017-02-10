@@ -44,7 +44,7 @@ let hRad () =
     float (4 + r.Next(1,1000)/100)
 
 let vRad () =
-    float (4 + r.Next())
+     float (4 + r.Next(1,1000)/100)
 
 let hRadInc = 0.1
 let vRadInc = 0.1
@@ -65,12 +65,14 @@ let rec loop circle = async {
     drawCircle ctx canvas circle.X circle.Y circle.Scale
     
     let newX = (width / 2.) + circle.hRad * Math.Sin(circle.lr * Math.PI/180.)
+    let newY = height /2. + circle.vRad * Math.Cos(circle.lr * Math.PI/180.)
     console.log("NewX calculated: " + newX.ToString())
     console.log("lrSpeed: " + circle.lrSpeed.ToString())
     console.log("lr: " + circle.lr.ToString())
     let newHrad = circle.hRad + circle.hRadInc
+    let newVrad = circle.vRad + circle.vRadInc
     let newLr = circle.lr + circle.lrSpeed
-    let circle  = {circle with hRad = newHrad; lr= newLr; X = newX; Scale = circle.Scale + circle.ScaleSpeed}
+    let circle  = {circle with hRad = newHrad; vRad = newVrad; lr= newLr; X = newX; Y = newY; Scale = circle.Scale + circle.ScaleSpeed}
     do! Async.Sleep(int (1000/60))
     return! loop circle
 
