@@ -4,6 +4,7 @@
 open System
 open Fable.Core
 open Fable.Import
+open Fable.Import.Browser
 
 
 let width = 800.
@@ -28,6 +29,7 @@ let drawCircle (ctx:Browser.CanvasRenderingContext2D) canvas x y scale =
     ctx.beginPath() 
     //ctx.transform(scale,0.,0.,scale,0.,0.)
     ctx.arc (x , y, 15. + scale, 0., 2. * Math.PI, false)
+    console.log("Drawing X: " + x.ToString())
     ctx.fillStyle <- U3.Case1 "red"
     ctx.fill()
     ctx.stroke()
@@ -36,10 +38,10 @@ let drawCircle (ctx:Browser.CanvasRenderingContext2D) canvas x y scale =
 let r = new Random()
 
 let lrSpeed () =     
-    float (5  + r.Next() * 40)
+     float (5 + r.Next(1,1000)/100)
 
 let hRad () =
-    float (4 + r.Next())
+    float (4 + r.Next(1,1000)/100)
 
 let vRad () =
     float (4 + r.Next())
@@ -62,7 +64,13 @@ let rec loop circle = async {
     drawBg ctx canvas
     drawCircle ctx canvas circle.X circle.Y circle.Scale
     
-    let circle  = {circle with Scale = circle.Scale + circle.ScaleSpeed}
+    let newX = (width / 2.) + circle.hRad * Math.Sin(circle.lr * Math.PI/180.)
+    console.log("NewX calculated: " + newX.ToString())
+    console.log("lrSpeed: " + circle.lrSpeed.ToString())
+    console.log("lr: " + circle.lr.ToString())
+    let newHrad = circle.hRad + circle.hRadInc
+    let newLr = circle.lr + circle.lrSpeed
+    let circle  = {circle with hRad = newHrad; lr= newLr; X = newX; Scale = circle.Scale + circle.ScaleSpeed}
     do! Async.Sleep(int (1000/60))
     return! loop circle
 
