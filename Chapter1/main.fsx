@@ -82,7 +82,7 @@ let rec loop (circles:Circle list) = async {
                     |> List.map (fun circle -> circle |> (updateCircle >> setAlpha))     
                     |> List.filter (fun circle -> circle.alpha > 0.)
     
-    do! Async.Sleep(int (1000/60))
+    do! Async.Sleep(int (1000/90))
 
     let f = r.Next(1,1000)/ 10 
     if(f >= 98)
