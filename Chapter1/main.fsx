@@ -1,5 +1,4 @@
 #r "./node_modules/fable-core/Fable.Core.Dll"
-#load "./node_modules/fable-import-pixi/Fable.Import.Pixi.fs"
 
 open System
 open Fable.Core
